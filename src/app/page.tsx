@@ -12,7 +12,7 @@ import { Player } from "@/types";
 
 export default function Home() {
   const router = useRouter();
-  const { createGame } = useGameStore();
+  const { createGame, getCurrentGame } = useGameStore();
   const [isCreating, setIsCreating] = useState(false);
   const [selectedName, setSelectedName] = useState<string>("");
   const [team, setTeam] = useState<string[]>([]);
@@ -20,9 +20,21 @@ export default function Home() {
   const [recentPhotos, setRecentPhotos] = useState<TeamScoreRecord[]>([]);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [showGallery, setShowGallery] = useState(false);
+  const [hasActiveGame, setHasActiveGame] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    
+    // Load persisted player name
+    const savedName = localStorage.getItem('playerName');
+    if (savedName) {
+      setSelectedName(savedName);
+    }
+    
+    // Check for active game
+    const activeGame = getCurrentGame();
+    setHasActiveGame(activeGame?.status === 'in-progress');
+    
     loadCloudData();
   }, []);
 
@@ -41,6 +53,9 @@ export default function Home() {
 
   useEffect(() => {
     if (selectedName && mounted) {
+      // Save to localStorage
+      localStorage.setItem('playerName', selectedName);
+      
       // Generate random team of 4
       const availablePlayers = predefinedPlayers.filter(p => p !== selectedName);
       const shuffled = [...availablePlayers].sort(() => Math.random() - 0.5);
@@ -50,6 +65,31 @@ export default function Home() {
       setTeam([]);
     }
   }, [selectedName, mounted]);
+
+  const handleContinueGame = () => {
+    router.push('/game');
+  };
+
+  const handleRestartGame = () => {
+    if (confirm('Are you sure you want to restart? This will end the current game for everyone on your team.')) {
+      // Clear current game and start fresh
+      const { games, currentGameId } = useGameStore.getState();
+      if (currentGameId) {
+        const currentGame = games.find(g => g.id === currentGameId);
+        if (currentGame) {
+          useGameStore.setState({
+            games: games.map(g => 
+              g.id === currentGameId 
+                ? { ...g, status: 'completed' as const }
+                : g
+            )
+          });
+        }
+      }
+      setHasActiveGame(false);
+      handleStart();
+    }
+  };
 
   const handleStart = async () => {
     if (team.length === 0) return;
@@ -91,22 +131,22 @@ export default function Home() {
         <div className="absolute top-20 left-10 w-72 h-72 bg-[#FF6B35] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
         <div className="absolute bottom-20 right-10 w-72 h-72 bg-[#4ECDC4] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '1s' }}></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#FFE66D] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
-      </div>
+        </div>
 
       {/* Tab Navigation */}
       <div className="relative z-10 flex border-b border-gray-800 flex-shrink-0">
         <button
           onClick={() => setShowGallery(false)}
-          className={`flex-1 py-3 text-sm font-semibold transition-all ${
-            !showGallery ? 'text-[#FF6B35] border-b-2 border-[#FF6B35]' : 'text-gray-500'
+          className={`flex-1 py-8 text-xl font-bold transition-all ${
+            !showGallery ? 'text-[#FF6B35] border-b-3 border-[#FF6B35]' : 'text-gray-500'
           }`}
         >
           Play
         </button>
         <button
           onClick={() => setShowGallery(true)}
-          className={`flex-1 py-3 text-sm font-semibold transition-all ${
-            showGallery ? 'text-[#FF6B35] border-b-2 border-[#FF6B35]' : 'text-gray-500'
+          className={`flex-1 py-8 text-xl font-bold transition-all ${
+            showGallery ? 'text-[#FF6B35] border-b-3 border-[#FF6B35]' : 'text-gray-500'
           }`}
         >
           Gallery & Leaders
@@ -213,24 +253,45 @@ export default function Home() {
 
             {/* Actions */}
             {selectedName && (
-              <div className="pt-3 pb-safe flex-shrink-0">
-                <button 
-                  onClick={handleStart}
-                  disabled={isCreating}
-                  className="btn w-full py-4 text-base animate-fadeIn"
-                >
-                  {isCreating ? (
-                    <span className="flex items-center justify-center gap-3">
-                      <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Starting...
-                    </span>
-                  ) : (
-                    <span className="flex items-center justify-center gap-3">
-                      <Play className="w-5 h-5" fill="white" />
-                      Start
-                    </span>
-                  )}
-                </button>
+              <div className="pt-3 pb-safe flex-shrink-0 space-y-2">
+                {hasActiveGame ? (
+                  <>
+                    <button 
+                      onClick={handleContinueGame}
+                      className="btn w-full py-4 text-base animate-fadeIn"
+                    >
+                      <span className="flex items-center justify-center gap-3">
+                        <Play className="w-5 h-5" fill="white" />
+                        Continue Game
+                      </span>
+                    </button>
+                    <button 
+                      onClick={handleRestartGame}
+                      disabled={isCreating}
+                      className="btn-outline w-full py-3 text-sm"
+                    >
+                      Restart Game
+                    </button>
+                  </>
+                ) : (
+                  <button 
+                    onClick={handleStart}
+                    disabled={isCreating}
+                    className="btn w-full py-4 text-base animate-fadeIn"
+                  >
+                    {isCreating ? (
+                      <span className="flex items-center justify-center gap-3">
+                        <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Starting...
+                      </span>
+                    ) : (
+                      <span className="flex items-center justify-center gap-3">
+                        <Play className="w-5 h-5" fill="white" />
+                        Start
+                      </span>
+                    )}
+                  </button>
+                )}
               </div>
             )}
           </div>

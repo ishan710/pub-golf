@@ -119,9 +119,8 @@ export default function GamePage() {
     }
   };
 
-  const allSipsEntered = game.players.every((p) => (sips[p.id] || 0) > 0);
   const hasPhoto = teamPhoto !== null;
-  const canSubmit = allSipsEntered && hasPhoto;
+  const canSubmit = hasPhoto;
   const progress = ((game.currentHoleIndex + 1) / game.course.length) * 100;
 
   return (
@@ -317,7 +316,7 @@ export default function GamePage() {
                 
                 <button 
                   onClick={() => handleSipChange(player.id, currentHole.par)} 
-                  className="glass rounded-xl px-4 py-3 text-xs font-semibold hover:bg-[#1A1A2E] transition-all active:scale-95"
+                  className="flex-1 bg-gradient-to-br from-[#FF6B35] to-[#FFE66D] rounded-xl py-6 text-lg font-bold text-white hover:from-[#FFE66D] hover:to-[#FF6B35] transition-all active:scale-95 shadow-lg"
                 >
                   Par
                 </button>
@@ -365,8 +364,7 @@ export default function GamePage() {
             <div className="flex flex-col items-center">
               <span className="text-sm">Move to Next Bar</span>
               <div className="text-xs font-normal text-gray-400 mt-1">
-                {!allSipsEntered && "Count sips"}
-                {allSipsEntered && !hasPhoto && "Take photo"}
+                {!hasPhoto && "Take photo"}
               </div>
             </div>
           )}
