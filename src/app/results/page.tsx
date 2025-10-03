@@ -158,7 +158,7 @@ export default function ResultsPage() {
         </div>
 
         {/* Actions */}
-        <div className="p-6 glass space-y-3">
+        <div className="p-6 glass space-y-3" style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}>
           <button 
             onClick={() => router.push('/')}
             className="btn w-full py-5 rounded-2xl font-semibold text-lg flex items-center justify-center gap-2"

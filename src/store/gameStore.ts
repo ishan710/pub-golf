@@ -12,6 +12,7 @@ interface GameState {
   setCurrentGame: (gameId: string | null) => void;
   deleteGame: (gameId: string) => void;
   moveToNextHole: (gameId: string) => void;
+  nukeAllScores: (gameId: string) => void;
   getCurrentGame: () => Game | null;
   getPlayerScore: (gameId: string, playerId: string) => number;
   getLeaderboard: (gameId: string) => { player: Player; totalScore: number; relativeToPar: number }[];
@@ -62,6 +63,17 @@ export const useGameStore = create<GameState>()(
       moveToNextHole: (gameId) => {
         set((state) => ({
           games: state.games.map((g) => (g.id === gameId ? { ...g, currentHoleIndex: g.currentHoleIndex + 1 } : g)),
+        }));
+      },
+
+      nukeAllScores: (gameId) => {
+        set((state) => ({
+          games: state.games.map((g) => (g.id === gameId ? { 
+            ...g, 
+            scores: [], 
+            currentHoleIndex: 0,
+            status: 'in-progress' as const
+          } : g)),
         }));
       },
 

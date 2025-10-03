@@ -241,7 +241,7 @@ export default function SetupPage() {
       </div>
 
       {/* Footer Actions */}
-      <div className="p-6 glass">
+      <div className="p-6 glass" style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}>
         <div className="flex gap-3">
           {step !== 'name' && (
             <button 

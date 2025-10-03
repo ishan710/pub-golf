@@ -91,6 +91,7 @@ export default function Home() {
     }
   };
 
+
   const handleStart = async () => {
     if (team.length === 0) return;
     
@@ -246,54 +247,51 @@ export default function Home() {
                     >
                       Change Player
                     </button>
+
+                    {/* Actions */}
+                    {hasActiveGame ? (
+                      <div className="flex gap-3 mt-4">
+                        <button 
+                          onClick={handleContinueGame}
+                          className="btn flex-1 py-4 text-base animate-fadeIn"
+                        >
+                          <span className="flex items-center justify-center gap-2">
+                            <Play className="w-5 h-5" fill="white" />
+                            Continue
+                          </span>
+                        </button>
+                        <button 
+                          onClick={handleRestartGame}
+                          disabled={isCreating}
+                          className="btn-outline flex-1 py-4 text-sm"
+                        >
+                          Restart
+                        </button>
+                      </div>
+                    ) : (
+                      <button 
+                        onClick={handleStart}
+                        disabled={isCreating}
+                        className="btn w-full mt-4 py-4 text-base animate-fadeIn"
+                      >
+                        {isCreating ? (
+                          <span className="flex items-center justify-center gap-3">
+                            <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Starting...
+                          </span>
+                        ) : (
+                          <span className="flex items-center justify-center gap-3">
+                            <Play className="w-5 h-5" fill="white" />
+                            Start
+                          </span>
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Actions */}
-            {selectedName && (
-              <div className="pt-3 pb-safe flex-shrink-0 space-y-2">
-                {hasActiveGame ? (
-                  <>
-                    <button 
-                      onClick={handleContinueGame}
-                      className="btn w-full py-4 text-base animate-fadeIn"
-                    >
-                      <span className="flex items-center justify-center gap-3">
-                        <Play className="w-5 h-5" fill="white" />
-                        Continue Game
-                      </span>
-                    </button>
-                    <button 
-                      onClick={handleRestartGame}
-                      disabled={isCreating}
-                      className="btn-outline w-full py-3 text-sm"
-                    >
-                      Restart Game
-                    </button>
-                  </>
-                ) : (
-                  <button 
-                    onClick={handleStart}
-                    disabled={isCreating}
-                    className="btn w-full py-4 text-base animate-fadeIn"
-                  >
-                    {isCreating ? (
-                      <span className="flex items-center justify-center gap-3">
-                        <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Starting...
-                      </span>
-                    ) : (
-                      <span className="flex items-center justify-center gap-3">
-                        <Play className="w-5 h-5" fill="white" />
-                        Start
-                      </span>
-                    )}
-                  </button>
-                )}
-              </div>
-            )}
           </div>
         ) : (
           // ===== GALLERY & LEADERBOARD TAB =====

@@ -144,7 +144,7 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Back to Game */}
-      <div className="p-6 glass">
+      <div className="p-6 glass" style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}>
         <button 
           onClick={() => router.push('/game')}
           className="btn w-full py-4 rounded-2xl font-semibold"

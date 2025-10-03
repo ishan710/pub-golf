@@ -335,7 +335,7 @@ export default function GamePage() {
       </div>
 
       {/* Bottom Action - Fixed */}
-      <div className="px-4 pt-3 glass flex-shrink-0" style={{ paddingBottom: 'calc(2rem + env(safe-area-inset-bottom, 20px))' }}>
+      <div className="px-4 pt-3 glass flex-shrink-0" style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}>
         <button 
           onClick={submitScores} 
           disabled={!canSubmit || isSaving} 
