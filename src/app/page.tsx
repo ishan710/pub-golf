@@ -131,12 +131,12 @@ export default function Home() {
   const [lastSeenTimestamp, setLastSeenTimestamp] = useState(0);
   const gameId = 'ishans-birthday-2025';
   
-  const totalPar = bars.filter(b => !b.isFood).reduce((sum, bar) => sum + bar.par, 0);
+  const totalPar = bars.reduce((sum, bar) => sum + bar.par, 0);
   const totalSips = Object.values(sips).reduce((sum, s) => sum + s, 0);
   const totalDiff = totalSips - totalPar;
   const currentBar = bars[currentIndex];
   const currentSips = sips[currentBar.id] || 0;
-  const parDiff = currentBar.isFood ? 0 : currentSips - currentBar.par;
+  const parDiff = currentSips - currentBar.par;
   const newPhotosCount = allPhotos.filter(p => p.timestamp > lastSeenTimestamp).length;
 
   // Mark photos as seen when viewing Media tab
@@ -366,8 +366,7 @@ export default function Home() {
           </div>
 
           {/* Sips Counter */}
-          {!currentBar.isFood && (
-            <div className="card p-5 mb-4">
+          <div className="card p-5 mb-4">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <div className="text-xs text-gray-500 mb-1">Your Score</div>
@@ -397,7 +396,6 @@ export default function Home() {
                 </button>
               </div>
             </div>
-          )}
               
           {/* Drinks */}
           <div className="card p-5 mb-4">
@@ -485,7 +483,7 @@ export default function Home() {
 
             <h2 className="text-xs font-semibold text-gray-400 mb-2">BY BAR</h2>
             <div className="space-y-2">
-              {bars.filter(b => !b.isFood).map((bar, index) => {
+              {bars.map((bar, index) => {
                 const barSips = sips[bar.id] || 0;
                 const barDiff = barSips - bar.par;
                 
