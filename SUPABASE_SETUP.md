@@ -5,7 +5,7 @@
 2. Sign up for a free account
 3. Create a new project
 
-## Step 2: Create Database Table
+## Step 2: Create Database Tables
 Go to SQL Editor in Supabase and run this:
 
 ```sql
@@ -23,12 +23,26 @@ CREATE TABLE team_scores (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Create index for faster queries
-CREATE INDEX idx_game_id ON team_scores(game_id);
-CREATE INDEX idx_timestamp ON team_scores(timestamp);
+-- Create photos table
+CREATE TABLE photos (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  game_id TEXT NOT NULL,
+  bar_id TEXT NOT NULL,
+  bar_name TEXT NOT NULL,
+  photo_url TEXT NOT NULL,
+  timestamp BIGINT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Create indexes for faster queries
+CREATE INDEX idx_team_scores_game_id ON team_scores(game_id);
+CREATE INDEX idx_team_scores_timestamp ON team_scores(timestamp);
+CREATE INDEX idx_photos_game_id ON photos(game_id);
+CREATE INDEX idx_photos_timestamp ON photos(timestamp DESC);
 
 -- Enable Row Level Security (optional, for public read)
 ALTER TABLE team_scores ENABLE ROW LEVEL SECURITY;
+ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
 
 -- Allow anyone to read scores
 CREATE POLICY "Allow public read access" ON team_scores
@@ -36,6 +50,14 @@ CREATE POLICY "Allow public read access" ON team_scores
 
 -- Allow anyone to insert scores
 CREATE POLICY "Allow public insert access" ON team_scores
+  FOR INSERT WITH CHECK (true);
+
+-- Allow anyone to read photos
+CREATE POLICY "Allow public read photos" ON photos
+  FOR SELECT USING (true);
+
+-- Allow anyone to insert photos
+CREATE POLICY "Allow public insert photos" ON photos
   FOR INSERT WITH CHECK (true);
 ```
 

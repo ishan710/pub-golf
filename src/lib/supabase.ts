@@ -22,3 +22,13 @@ export interface TeamScoreRecord {
   created_at?: string;
 }
 
+export interface PhotoRecord {
+  id?: string;
+  game_id: string;
+  bar_id: string;
+  bar_name: string;
+  photo_url: string;
+  timestamp: number;
+  created_at?: string;
+}
+

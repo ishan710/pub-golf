@@ -13,12 +13,18 @@ const icon = new L.Icon({
 });
 
 export default function MapInner({ bars }: { bars: Bar[] }) {
-  const center: [number, number] = [40.72, -73.99];
   const barsWithCoords = bars.filter((b) => b.latitude && b.longitude);
+  
+  // If single bar, center on it with high zoom. Otherwise, show all bars
+  const isSingleBar = barsWithCoords.length === 1;
+  const center: [number, number] = isSingleBar 
+    ? [barsWithCoords[0].latitude as number, barsWithCoords[0].longitude as number]
+    : [40.72, -73.99];
+  const zoom = isSingleBar ? 18 : 12;
 
   return (
     <div className="w-full h-[500px] rounded-xl overflow-hidden">
-      <MapContainer center={center} zoom={12} style={{ height: '100%', width: '100%' }}>
+      <MapContainer center={center} zoom={zoom} style={{ height: '100%', width: '100%' }}>
         <TileLayer
           attribution='&copy; OpenStreetMap contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
