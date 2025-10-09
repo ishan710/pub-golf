@@ -125,8 +125,8 @@ const bars = [
 
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
+  const [touchEnd, setTouchEnd] = useState<{ x: number; y: number } | null>(null);
   const [sips, setSips] = useState<{ [key: number]: number }>({});
   const [activeTab, setActiveTab] = useState<'course' | 'score' | 'media'>('course');
   const [uploading, setUploading] = useState(false);
@@ -187,29 +187,42 @@ export default function Home() {
   }, [sips]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
+    setTouchStart({
+      x: e.targetTouches[0].clientX,
+      y: e.targetTouches[0].clientY
+    });
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+    setTouchEnd({
+      x: e.targetTouches[0].clientX,
+      y: e.targetTouches[0].clientY
+    });
   };
 
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
     
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
+    const horizontalDistance = touchStart.x - touchEnd.x;
+    const verticalDistance = touchStart.y - touchEnd.y;
     
-    if (isLeftSwipe && currentIndex < bars.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    }
-    if (isRightSwipe && currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
+    // Only trigger horizontal swipe if horizontal movement is greater than vertical
+    const isHorizontalSwipe = Math.abs(horizontalDistance) > Math.abs(verticalDistance);
+    
+    if (isHorizontalSwipe) {
+      const isLeftSwipe = horizontalDistance > 75;
+      const isRightSwipe = horizontalDistance < -75;
+      
+      if (isLeftSwipe && currentIndex < bars.length - 1) {
+        setCurrentIndex(currentIndex + 1);
+      }
+      if (isRightSwipe && currentIndex > 0) {
+        setCurrentIndex(currentIndex - 1);
+      }
     }
     
-    setTouchStart(0);
-    setTouchEnd(0);
+    setTouchStart(null);
+    setTouchEnd(null);
   };
 
   const goToPrevious = () => {
@@ -268,15 +281,15 @@ export default function Home() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-[#0F0F1E] via-[#1A1A2E] to-[#0F0F1E] flex flex-col overflow-hidden">
+    <div className="h-screen h-[100dvh] bg-gradient-to-br from-[#0F0F1E] via-[#1A1A2E] to-[#0F0F1E] flex flex-col">
       {/* Header */}
-      <div className="px-4 pt-6 pb-3">
+      <div className="px-4 pt-6 pb-3 flex-shrink-0">
         <h1 className="text-2xl sm:text-3xl font-bold mb-1 text-gradient">Ishan's Birthday</h1>
         <p className="text-xs sm:text-sm text-gray-400">Pub Golf NYC 🎉</p>
         </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-800">
+      <div className="flex border-b border-gray-800 flex-shrink-0">
         <button
           onClick={() => setActiveTab('course')}
           className={`flex-1 py-3 text-sm font-semibold ${
@@ -309,15 +322,16 @@ export default function Home() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 min-h-0 overflow-hidden">
         {activeTab === 'course' && (
           <div 
-            className="h-full overflow-y-auto relative"
+            className="h-full overflow-y-scroll relative"
+            style={{ WebkitOverflowScrolling: 'touch' }}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
-            <div className="px-4 py-4">
+            <div className="px-4 py-4 pb-8">
           {/* Bar Info with Navigation */}
           <div className="mb-3">
             <div className="flex items-center justify-between gap-10 mb-10">
@@ -357,8 +371,8 @@ export default function Home() {
 
           {/* Sips Counter */}
           {!currentBar.isFood && (
-            <div className="card p-4 mb-3">
-              <div className="flex items-center justify-between mb-3">
+            <div className="card p-5 mb-4">
+              <div className="flex items-center justify-between mb-4">
                 <div>
                   <div className="text-xs text-gray-500 mb-1">Your Score</div>
                   <div className="flex items-baseline gap-2">
@@ -390,9 +404,9 @@ export default function Home() {
           )}
               
           {/* Drinks */}
-          <div className="card p-4 mb-3">
-            <h3 className="text-xs font-semibold text-[#FFE66D] mb-2">DRINKS</h3>
-            <div className="space-y-1.5">
+          <div className="card p-5 mb-4">
+            <h3 className="text-xs font-semibold text-[#FFE66D] mb-3">DRINKS</h3>
+            <div className="space-y-2">
               {currentBar.drinks.map((drink, i) => (
                 <div key={i} className="text-sm text-gray-300">
                   • {drink}
@@ -402,7 +416,7 @@ export default function Home() {
           </div>
 
           {/* Photo Upload */}
-          <label htmlFor={`photo-${currentBar.id}`} className={`card border-2 border-dashed border-gray-600 hover:border-[#FF6B35] cursor-pointer p-4 mb-3 block ${uploading ? 'opacity-50' : ''}`}>
+          <label htmlFor={`photo-${currentBar.id}`} className={`card border-2 border-dashed border-gray-600 hover:border-[#FF6B35] cursor-pointer p-5 mb-4 block ${uploading ? 'opacity-50' : ''}`}>
             <input
               id={`photo-${currentBar.id}`}
               type="file"
@@ -428,7 +442,7 @@ export default function Home() {
           </label>
               
           {/* Map */}
-          <div className="h-72 rounded-xl overflow-hidden border border-gray-700 mb-4">
+          <div className="h-72 rounded-xl overflow-hidden border border-gray-700">
             <MapClient bars={[{
               id: currentBar.id.toString(),
               name: currentBar.name,
@@ -441,24 +455,25 @@ export default function Home() {
                         </div>
 
                   </div>
-
-            {/* Dots Indicator */}
-            <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5">
-              {bars.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentIndex(index)}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    index === currentIndex ? 'bg-[#FF6B35] w-6' : 'bg-gray-600'
-                  }`}
-                />
-              ))}
-                      </div>
-                  </div>
+                </div>
         )}
 
         {activeTab === 'score' && (
-          <div className="h-full overflow-y-auto px-4 py-4">
+          <div className="h-full overflow-y-scroll px-4 py-4" style={{ WebkitOverflowScrolling: 'touch' }}>
+            {totalSips > 0 && (
+              <button
+                onClick={() => {
+                  if (confirm('Reset all scores to 0?')) {
+                    setSips({});
+                    localStorage.removeItem('pubgolf-sips');
+                  }
+                }}
+                className="text-xs text-gray-500 mb-3 mx-auto block"
+              >
+                Reset
+              </button>
+            )}
+
             <div className="card p-6 mb-4 text-center">
               <div className="text-xs text-gray-500 mb-2">TOTAL SCORE</div>
               <div className="text-6xl font-bold text-gradient mb-2">{totalSips}</div>
@@ -503,11 +518,11 @@ export default function Home() {
                 );
               })}
             </div>
-              </div>
+          </div>
         )}
               
         {activeTab === 'media' && (
-          <div className="h-full overflow-y-auto px-4 py-4">
+          <div className="h-full overflow-y-scroll px-4 py-4" style={{ WebkitOverflowScrolling: 'touch' }}>
             {allPhotos.length > 0 ? (
                 <div className="grid grid-cols-2 gap-2">
                 {allPhotos.map((photo) => (
