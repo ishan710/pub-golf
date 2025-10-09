@@ -12,6 +12,7 @@ const bars = [
     address: "408 E 14th St, New York, NY 10009",
     latitude: 40.7297,
     longitude: -73.9806,
+    time: "8:15 - 9:00 PM",
     par: 8,
     drinks: [
       "Yuzu Lager",
@@ -25,6 +26,7 @@ const bars = [
     address: "E 13th St, New York, NY",
     latitude: 40.7310,
     longitude: -73.9870,
+    time: "9:00 - 9:45 PM",
     par: 4,
     drinks: [
       "Margarita Picante",
@@ -38,6 +40,7 @@ const bars = [
     address: "E 12th St, New York, NY",
     latitude: 40.7320,
     longitude: -73.9880,
+    time: "9:45 - 10:15 PM",
     par: 3,
     drinks: [
       "Surprise drink – any three"
@@ -45,80 +48,74 @@ const bars = [
   },
   {
     id: 4,
-    name: "Ten Degrees",
-    address: "New York, NY",
-    latitude: 40.7330,
-    longitude: -73.9890,
-    par: 1,
-    drinks: [
-      "Bottle of wine – Campo Viejo, Macabeo Cava Brut"
-    ]
-  },
-  {
-    id: 5,
-    name: "Augurs Well Bar",
-    address: "New York, NY",
-    latitude: 40.7280,
-    longitude: -73.9860,
-    par: 3,
-    drinks: [
-      "Well Drinks (3) - Vodka Soda, etc."
-    ]
-  },
-  {
-    id: 6,
-    name: "ROMEO's",
-    address: "New York, NY",
-    latitude: 40.7290,
-    longitude: -73.9850,
-    par: 3,
-    drinks: [
-      "The Big Meech - Shot + Drink + Beer combo"
-    ]
-  },
-  {
-    id: 7,
-    name: "Pit Stop – Kolachi",
-    address: "New York, NY",
-    latitude: 40.7285,
-    longitude: -73.9840,
-    par: 0,
-    drinks: [
-      "Rolls and sandwiches"
-    ],
-    isFood: true
-  },
-  {
-    id: 8,
     name: "The Copper Still",
     address: "E 10th–11th St, New York, NY",
     latitude: 40.7272,
     longitude: -73.9847,
+    time: "10:15 - 11:00 PM",
     par: 3,
     drinks: [
       "Drinks TBD"
     ]
   },
   {
-    id: 9,
+    id: 5,
+    name: "Barcade",
+    address: "St. Marks Pl, New York, NY",
+    latitude: 40.7280,
+    longitude: -73.9845,
+    time: "11:00 - 11:45 PM",
+    par: 3,
+    drinks: [
+      "Drinks TBD"
+    ]
+  },
+  {
+    id: 6,
     name: "Sing Sing",
     address: "St. Marks Pl, New York, NY",
     latitude: 40.7293,
     longitude: -73.9885,
+    time: "11:45 PM - 12:45 AM",
     par: 3,
     drinks: [
       "Karaoke stop – drinks TBD"
     ]
   },
   {
-    id: 10,
-    name: "Barcade",
-    address: "St. Marks Pl, New York, NY",
-    latitude: 40.7280,
-    longitude: -73.9845,
+    id: 7,
+    name: "ROMEO's",
+    address: "New York, NY",
+    latitude: 40.7290,
+    longitude: -73.9850,
+    time: "12:45 - 1:30 AM",
     par: 3,
     drinks: [
-      "Drinks TBD"
+      "The Big Meech - Shot + Drink + Beer combo"
+    ]
+  },
+  {
+    id: 8,
+    name: "Augurs Well Bar",
+    address: "New York, NY",
+    latitude: 40.7280,
+    longitude: -73.9860,
+    time: "1:30 - 2:00 AM",
+    par: 3,
+    drinks: [
+      "Well Drinks (3) - Vodka Soda, etc."
+    ]
+  },
+  {
+    id: 9,
+    name: "Ten Degrees",
+    address: "New York, NY",
+    latitude: 40.7330,
+    longitude: -73.9890,
+    time: "2:00 - 2:01 AM",
+    par: 1,
+    drinks: [
+      "Bottle of wine – Campo Viejo, Macabeo Cava Brut"
     ]
   }
 ];
@@ -349,11 +346,10 @@ export default function Home() {
                     {currentIndex + 1}
                   </span>
                   <h2 className="text-xl font-bold">{currentBar.name}</h2>
-                  {!currentBar.isFood && (
-                    <div className="badge badge-warning text-xs">Par {currentBar.par}</div>
-                  )}
+                  <div className="badge badge-warning text-xs">Par {currentBar.par}</div>
                 </div>
-                <p className="text-xs text-gray-400 flex items-center justify-center gap-1">
+                <p className="text-xs text-gray-400 mb-1">{currentBar.time}</p>
+                <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
                   <MapPin className="w-3 h-3" />
                   {currentBar.address}
                 </p>
