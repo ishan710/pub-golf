@@ -131,6 +131,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<'course' | 'score' | 'media'>('course');
   const [uploading, setUploading] = useState(false);
   const [allPhotos, setAllPhotos] = useState<PhotoRecord[]>([]);
+  const [lastSeenTimestamp, setLastSeenTimestamp] = useState(0);
   const gameId = 'ishans-birthday-2025';
   
   const totalPar = bars.filter(b => !b.isFood).reduce((sum, bar) => sum + bar.par, 0);
@@ -139,12 +140,27 @@ export default function Home() {
   const currentBar = bars[currentIndex];
   const currentSips = sips[currentBar.id] || 0;
   const parDiff = currentBar.isFood ? 0 : currentSips - currentBar.par;
+  const newPhotosCount = allPhotos.filter(p => p.timestamp > lastSeenTimestamp).length;
 
-  // Load sips from localStorage on mount
+  // Mark photos as seen when viewing Media tab
+  useEffect(() => {
+    if (activeTab === 'media' && allPhotos.length > 0) {
+      const latestTimestamp = Math.max(...allPhotos.map(p => p.timestamp));
+      setLastSeenTimestamp(latestTimestamp);
+      localStorage.setItem('pubgolf-last-seen', latestTimestamp.toString());
+    }
+  }, [activeTab, allPhotos]);
+
+  // Load sips and last seen timestamp from localStorage on mount
   useEffect(() => {
     const savedSips = localStorage.getItem('pubgolf-sips');
     if (savedSips) {
       setSips(JSON.parse(savedSips));
+    }
+    
+    const savedLastSeen = localStorage.getItem('pubgolf-last-seen');
+    if (savedLastSeen) {
+      setLastSeenTimestamp(parseInt(savedLastSeen));
     }
   }, []);
 
@@ -279,11 +295,16 @@ export default function Home() {
         </button>
         <button
           onClick={() => setActiveTab('media')}
-          className={`flex-1 py-3 text-sm font-semibold ${
+          className={`flex-1 py-3 text-sm font-semibold relative ${
             activeTab === 'media' ? 'text-[#FF6B35] border-b-2 border-[#FF6B35]' : 'text-gray-500'
           }`}
         >
           Media
+          {newPhotosCount > 0 && activeTab !== 'media' && (
+            <span className="absolute -top-0.5 right-1/4 bg-[#FF6B35] text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {newPhotosCount}
+            </span>
+          )}
         </button>
       </div>
 
@@ -297,24 +318,42 @@ export default function Home() {
             onTouchEnd={handleTouchEnd}
           >
             <div className="px-4 py-4">
-          {/* Bar Info */}
-          <div className="mb-3 flex items-center justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="w-7 h-7 rounded-full bg-gradient-to-br from-[#FF6B35] to-[#FFE66D] flex items-center justify-center text-white text-sm font-bold">
-                  {currentIndex + 1}
-                </span>
-                <h2 className="text-xl font-bold">{currentBar.name}</h2>
+          {/* Bar Info with Navigation */}
+          <div className="mb-3">
+            <div className="flex items-center justify-between gap-10 mb-10">
+              <button
+                onClick={goToPrevious}
+                disabled={currentIndex === 0}
+                className="glass px-5 py-5 rounded-xl disabled:opacity-20"
+              >
+                <ChevronLeft className="w-7 h-7 text-gray-300" />
+              </button>
+              
+              <div className="text-center flex-1">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <span className="w-6 h-6 rounded-full bg-gradient-to-br from-[#FF6B35] to-[#FFE66D] flex items-center justify-center text-white text-xs font-bold">
+                    {currentIndex + 1}
+                  </span>
+                  <h2 className="text-xl font-bold">{currentBar.name}</h2>
+                  {!currentBar.isFood && (
+                    <div className="badge badge-warning text-xs">Par {currentBar.par}</div>
+                  )}
+                </div>
+                <p className="text-xs text-gray-400 flex items-center justify-center gap-1">
+                  <MapPin className="w-3 h-3" />
+                  {currentBar.address}
+                </p>
               </div>
-              <p className="text-xs text-gray-400 flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
-                {currentBar.address}
-              </p>
+
+              <button
+                onClick={goToNext}
+                disabled={currentIndex === bars.length - 1}
+                className="glass px-5 py-5 rounded-xl disabled:opacity-20"
+              >
+                <ChevronRight className="w-7 h-7 text-gray-300" />
+              </button>
             </div>
-            {!currentBar.isFood && (
-              <div className="badge badge-warning text-xs">Par {currentBar.par}</div>
-            )}
-                        </div>
+          </div>
 
           {/* Sips Counter */}
           {!currentBar.isFood && (
@@ -399,44 +438,9 @@ export default function Home() {
               par: currentBar.par,
               neighborhood: ''
             }]} />
-          </div>
+                        </div>
 
-          {/* Navigation Buttons */}
-          <div className="flex gap-2">
-            <button
-              onClick={goToPrevious}
-              disabled={currentIndex === 0}
-              className="btn-outline flex-1 py-4 disabled:opacity-30"
-            >
-              <ChevronLeft className="w-5 h-5 mx-auto" />
-            </button>
-                      <button
-              onClick={goToNext}
-              disabled={currentIndex === bars.length - 1}
-              className="btn flex-1 py-4"
-            >
-              <ChevronRight className="w-5 h-5 mx-auto" />
-                      </button>
                   </div>
-                </div>
-
-            {/* Navigation Arrows */}
-            {currentIndex > 0 && (
-                        <button 
-                onClick={goToPrevious}
-                className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center text-white"
-                        >
-                <ChevronLeft className="w-6 h-6" />
-                        </button>
-            )}
-            {currentIndex < bars.length - 1 && (
-                        <button 
-                onClick={goToNext}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center text-white"
-              >
-                <ChevronRight className="w-6 h-6" />
-                      </button>
-                    )}
 
             {/* Dots Indicator */}
             <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5">
@@ -449,7 +453,7 @@ export default function Home() {
                   }`}
                 />
               ))}
-            </div>
+                      </div>
                   </div>
         )}
 
