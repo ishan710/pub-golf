@@ -128,6 +128,7 @@ export default function Home() {
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
   const [touchEnd, setTouchEnd] = useState<{ x: number; y: number } | null>(null);
   const [sips, setSips] = useState<{ [key: number]: number }>({});
+  const [hazards, setHazards] = useState<{ [key: number]: number }>({});
   const [activeTab, setActiveTab] = useState<'course' | 'score' | 'media'>('course');
   const [uploading, setUploading] = useState(false);
   const [allPhotos, setAllPhotos] = useState<PhotoRecord[]>([]);
@@ -136,10 +137,12 @@ export default function Home() {
   
   const totalPar = bars.reduce((sum, bar) => sum + bar.par, 0);
   const totalSips = Object.values(sips).reduce((sum, s) => sum + s, 0);
-  const totalDiff = totalSips - totalPar;
+  const totalHazards = Object.values(hazards).reduce((sum, h) => sum + h, 0);
+  const totalDiff = totalSips + totalHazards - totalPar;
   const currentBar = bars[currentIndex];
   const currentSips = sips[currentBar.id] || 0;
-  const parDiff = currentSips - currentBar.par;
+  const currentHazards = hazards[currentBar.id] || 0;
+  const parDiff = currentSips + currentHazards - currentBar.par;
   const newPhotosCount = allPhotos.filter(p => p.timestamp > lastSeenTimestamp).length;
 
   // Mark photos as seen when viewing Media tab
@@ -151,11 +154,16 @@ export default function Home() {
     }
   }, [activeTab, allPhotos]);
 
-  // Load sips and last seen timestamp from localStorage on mount
+  // Load sips, hazards, and last seen timestamp from localStorage on mount
   useEffect(() => {
     const savedSips = localStorage.getItem('pubgolf-sips');
     if (savedSips) {
       setSips(JSON.parse(savedSips));
+    }
+    
+    const savedHazards = localStorage.getItem('pubgolf-hazards');
+    if (savedHazards) {
+      setHazards(JSON.parse(savedHazards));
     }
     
     const savedLastSeen = localStorage.getItem('pubgolf-last-seen');
@@ -185,6 +193,13 @@ export default function Home() {
       localStorage.setItem('pubgolf-sips', JSON.stringify(sips));
     }
   }, [sips]);
+
+  // Save to localStorage when hazards change
+  useEffect(() => {
+    if (Object.keys(hazards).length > 0) {
+      localStorage.setItem('pubgolf-hazards', JSON.stringify(hazards));
+    }
+  }, [hazards]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart({
@@ -277,6 +292,20 @@ export default function Home() {
     setSips(prev => ({
       ...prev,
       [currentBar.id]: currentBar.par
+    }));
+  };
+
+  const incrementHazards = () => {
+    setHazards(prev => ({
+      ...prev,
+      [currentBar.id]: (prev[currentBar.id] || 0) + 1
+    }));
+  };
+
+  const decrementHazards = () => {
+    setHazards(prev => ({
+      ...prev,
+      [currentBar.id]: Math.max(0, (prev[currentBar.id] || 0) - 1)
     }));
   };
 
@@ -374,10 +403,10 @@ export default function Home() {
                 <div>
                   <div className="text-xs text-gray-500 mb-1">Your Score</div>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-bold text-gradient">{currentSips}</span>
+                    <span className="text-4xl font-bold text-gradient">{currentSips + currentHazards}</span>
                     <span className="text-sm text-gray-400">/ {currentBar.par}</span>
                   </div>
-                  {currentSips > 0 && (
+                  {(currentSips > 0 || currentHazards > 0) && (
                     <div className="text-xs mt-1">
                       {parDiff === 0 && <span className="text-[#4ECDC4]">Perfect 🎯</span>}
                       {parDiff < 0 && <span className="text-green-400">{Math.abs(parDiff)} under 🔥</span>}
@@ -387,7 +416,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 mb-3">
                 <button onClick={decrementSips} disabled={currentSips === 0} className="flex-1 glass rounded-xl py-3 disabled:opacity-30">
                   <Minus className="w-5 h-5 mx-auto" />
                 </button>
@@ -395,6 +424,32 @@ export default function Home() {
                   Par
                 </button>
                 <button onClick={incrementSips} className="flex-1 glass rounded-xl py-3">
+                  <Plus className="w-5 h-5 mx-auto" />
+                </button>
+              </div>
+
+              <div className="text-xs text-gray-500 mb-2 flex items-center justify-between">
+                <span>Sips: {currentSips}</span>
+                <span>Hazards: {currentHazards}</span>
+              </div>
+            </div>
+
+          {/* Hazards Counter */}
+          <div className="card p-5 mb-4">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <div className="text-xs text-gray-500 mb-1">Hazard Points</div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-bold text-gradient">{currentHazards}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <button onClick={decrementHazards} disabled={currentHazards === 0} className="flex-1 glass rounded-xl py-3 disabled:opacity-30">
+                  <Minus className="w-5 h-5 mx-auto" />
+                </button>
+                <button onClick={incrementHazards} className="flex-1 glass rounded-xl py-3">
                   <Plus className="w-5 h-5 mx-auto" />
                 </button>
               </div>
@@ -457,12 +512,14 @@ export default function Home() {
 
         {activeTab === 'score' && (
           <div className="h-full overflow-y-scroll px-4 py-4" style={{ WebkitOverflowScrolling: 'touch' }}>
-            {totalSips > 0 && (
+            {(totalSips > 0 || totalHazards > 0) && (
               <button
                 onClick={() => {
                   if (confirm('Reset all scores to 0?')) {
                     setSips({});
+                    setHazards({});
                     localStorage.removeItem('pubgolf-sips');
+                    localStorage.removeItem('pubgolf-hazards');
                   }
                 }}
                 className="text-xs text-gray-500 mb-3 mx-auto block"
@@ -473,9 +530,12 @@ export default function Home() {
 
             <div className="card p-6 mb-4 text-center">
               <div className="text-xs text-gray-500 mb-2">TOTAL SCORE</div>
-              <div className="text-6xl font-bold text-gradient mb-2">{totalSips}</div>
+              <div className="text-6xl font-bold text-gradient mb-2">{totalSips + totalHazards}</div>
               <div className="text-sm text-gray-400">out of {totalPar} par</div>
-              {totalSips > 0 && (
+              <div className="text-xs text-gray-500 mt-2">
+                Sips: {totalSips} | Hazards: {totalHazards}
+              </div>
+              {(totalSips > 0 || totalHazards > 0) && (
                 <div className="mt-3 text-base">
                   {totalDiff === 0 && <span className="text-[#4ECDC4]">Perfect Round! 🎯</span>}
                   {totalDiff < 0 && <span className="text-green-400">{Math.abs(totalDiff)} under par 🔥</span>}
@@ -488,7 +548,9 @@ export default function Home() {
             <div className="space-y-2">
               {bars.map((bar, index) => {
                 const barSips = sips[bar.id] || 0;
-                const barDiff = barSips - bar.par;
+                const barHazards = hazards[bar.id] || 0;
+                const barTotal = barSips + barHazards;
+                const barDiff = barTotal - bar.par;
                 
                 return (
                   <div key={bar.id} className="card p-3 flex items-center justify-between">
@@ -498,17 +560,20 @@ export default function Home() {
                       </span>
                           <div className="min-w-0 flex-1">
                         <div className="font-semibold text-sm truncate">{bar.name}</div>
-                        {barSips > 0 && (
+                        {barTotal > 0 && (
                           <div className="text-xs">
                             {barDiff === 0 && <span className="text-[#4ECDC4]">Even</span>}
                             {barDiff < 0 && <span className="text-green-400">{Math.abs(barDiff)} under</span>}
                             {barDiff > 0 && <span className="text-orange-400">+{barDiff}</span>}
+                            {(barSips > 0 || barHazards > 0) && (
+                              <span className="text-gray-500 ml-1">({barSips}s + {barHazards}h)</span>
+                            )}
                           </div>
                         )}
                       </div>
                     </div>
                     <div className="text-right ml-2">
-                      <div className="text-2xl font-bold text-gradient">{barSips}</div>
+                      <div className="text-2xl font-bold text-gradient">{barTotal}</div>
                       <div className="text-xs text-gray-500">/ {bar.par}</div>
                 </div>
                 </div>
