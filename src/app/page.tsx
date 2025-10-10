@@ -15,9 +15,7 @@ const bars = [
     time: "8:15 - 9:00 PM",
     par: 8,
     drinks: [
-      "Yuzu Lager",
-      "Espresso Martini",
-      "Apple Martini"
+      "4 Spicy Pickle shots"
     ]
   },
   {
@@ -27,11 +25,11 @@ const bars = [
     latitude: 40.7310,
     longitude: -73.9870,
     time: "9:00 - 9:45 PM",
-    par: 4,
+    par: 10,
     drinks: [
-      "Margarita Picante",
-      "Sloop Juice Bomb IPA or Wolffer Estate Rosé Cider",
-      "Spicy Lemonade Shots (2)"
+      "Margarita Picante ($16)",
+      "1 Sloop Juice Bomb IPA ($9)",
+      "1 Wolffer Estate Rosé Cider ($8)"
     ]
   },
   {
@@ -41,21 +39,23 @@ const bars = [
     latitude: 40.7320,
     longitude: -73.9880,
     time: "9:45 - 10:15 PM",
-    par: 3,
+    par: 8,
     drinks: [
-      "Surprise drink – any three"
+      "4 One Eyed Jacks"
     ]
   },
   {
     id: 4,
-    name: "The Copper Still",
+    name: "Copper Still",
     address: "E 10th–11th St, New York, NY",
     latitude: 40.7272,
     longitude: -73.9847,
     time: "10:15 - 11:00 PM",
-    par: 3,
+    par: 5,
     drinks: [
-      "Drinks TBD"
+      "1 Knappogue Castle 12 Single Malt ($11)",
+      "1 Angeles Envy Bourbon ($10)",
+      "Still Fashionable ($16)"
     ]
   },
   {
@@ -65,9 +65,10 @@ const bars = [
     latitude: 40.7280,
     longitude: -73.9845,
     time: "11:00 - 11:45 PM",
-    par: 3,
+    par: 15,
     drinks: [
-      "Drinks TBD"
+      "5 Beers per team",
+      "Beat another team in a game? Give up a beer!"
     ]
   },
   {
@@ -77,45 +78,47 @@ const bars = [
     latitude: 40.7293,
     longitude: -73.9885,
     time: "11:45 PM - 12:45 AM",
-    par: 3,
+    par: 10,
     drinks: [
-      "Karaoke stop – drinks TBD"
+      "Party Shot ($30 for 10!!) / Sake Bombs",
+      "Team must sing a song (Bad Sport Hazard +3 if not)"
     ]
   },
   {
     id: 7,
-    name: "ROMEO's",
+    name: "Romeos",
     address: "New York, NY",
     latitude: 40.7290,
     longitude: -73.9850,
     time: "12:45 - 1:30 AM",
-    par: 3,
+    par: 6,
     drinks: [
-      "The Big Meech - Shot + Drink + Beer combo"
+      "The Big Meech ($20) - Shot + Drink + Beer combo",
+      "Game Time decision"
     ]
   },
   {
     id: 8,
-    name: "Augurs Well Bar",
+    name: "Aug Well Bar",
     address: "New York, NY",
     latitude: 40.7280,
     longitude: -73.9860,
     time: "1:30 - 2:00 AM",
-    par: 3,
+    par: 9,
     drinks: [
-      "Well Drinks (3) - Vodka Soda, etc."
+      "3 × Well Drinks ($10 each)"
     ]
   },
   {
     id: 9,
-    name: "Ten Degrees",
+    name: "Miss Lily's 7A Cafe",
     address: "New York, NY",
     latitude: 40.7330,
     longitude: -73.9890,
     time: "2:00 - 2:01 AM",
-    par: 1,
+    par: 9,
     drinks: [
-      "Bottle of wine – Campo Viejo, Macabeo Cava Brut"
+      "2/3 Rum Punch ($14)"
     ]
   }
 ];
